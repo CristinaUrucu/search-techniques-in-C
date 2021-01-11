@@ -38,9 +38,9 @@ int interpolation_search(int low, int high, int *where, int what) {
         return mid;
     }
     if (where[mid] > what) {
-        return cautare_interpolare(mid - 1, high, count);
+        return cautare_interpolare(mid - 1, high,  where, what);
     }else {
-        return cautare_interpolare(low, mid + 1, count);
+        return cautare_interpolare(low, mid + 1,  where, what);
     }
 }
 
