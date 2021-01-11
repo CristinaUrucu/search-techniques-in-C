@@ -1,7 +1,9 @@
-//search-techniques-in-C
 //Just some basic search techniques in C
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include <time.h>
 
 //for ascending sorted arrays
 void linear_search(int *where, int len, int what){
@@ -9,7 +11,7 @@ void linear_search(int *where, int len, int what){
     for (i = 0; i < len; ++i) {
         if (where(i) == x) {
             //somethig
-            printf("Linear search: %d ", i);
+            printf("Linear search: %d", i);
         }
     }
 }
@@ -154,19 +156,48 @@ int kmp_search(char* x, char* cuvant) {
 }
 
 int main() {
+    clock_t start_t = clock();
     int v[5] = {0, 1, 2, 3, 4};
+    
+    clock_t t1_linear = clock();
     linear_search(v, 5, 4);
-    printf("\n");
-    printf("Binary search: %d\n", binary_search(0, 4, v, 4));
-    printf("Interpolation search: %d\n", interpolation_search(0, 4, v, 4));
+    clock_t t2_linear = clock();
+    printf(" - time: %d\n", t2_linear - t1_linear);
+    
+    clock_t t1_binary = clock();
+    printf("Binary search: %d", binary_search(0, 4, v, 4));
+    clock_t t2_binary = clock();
+    printf(" - time: %d\n", t2_binary - t1_binary);
+    
+    clock_t t1_interpolation = clock();
+    printf("Interpolation search: %d ", interpolation_search(0, 4, v, 4));
+    clock_t t2_interpolation = clock();
+    printf(" - time: %d\n", t2_interpolation - t1_interpolation);
+    
     char s1[] = {"ANA ARE MERE"};
     char s2[] = {"ANA"};
     char s3[] = {"A*A"};
-    printf("Boyer Moore: %d\n", boyer_moore(s1, s2));
-    printf("Boyer Moore: %d\n", boyer_moore(s1, s3));
-    printf("KMP: %d\n", cautare_kmp(s1, s2));
-    printf("KMP: %d\n", cautare_kmp(s1, s3));
+    clock_t t1_BM = clock();
+    printf("Boyer Moore: %d", boyer_moore(s1, s2));
+    clock_t t2_BM = clock();
+    printf(" - time: %d\n", t2_BM - t1_BM);
+    clock_t t3_BM = clock();
+    printf("Boyer Moore: %d", boyer_moore(s1, s3));
+    clock_t t4_BM = clock();
+    printf(" - time: %d\n", t4_BM - t3_BM);
     
+    clock_t t1_KMP = clock();
+    printf("KMP: %d", cautare_kmp(s1, s2));
+    clock_t t2_KMP = clock();
+    printf(" - time: %d\n", t2_KMP - t1_KMP);
+    clock_t t3_KMP = clock();
+    printf("KMP: %d", cautare_kmp(s1, s3));
+    clock_t t4_KMP = clock();
+    printf(" - time: %d\n", t4_KMP - t3_KMP);
+    
+    clock_t end_t = clock();
+    clock_t total_t = (end_t - start_t) / CLOCKS_PER_SEC;
+    printf("Total CPU time: %d", total_t);
   
   
   return 0;
