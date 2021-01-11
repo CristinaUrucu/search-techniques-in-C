@@ -2,7 +2,7 @@
 //Just some basic search techniques in C
 #include <stdio.h>
 #include <stdlib.h>
-
+//for ascending sorted arrays
 void linear_search(int *where, int len, int what){
     int i;
     for (i = 0; i < len; ++i) {
@@ -14,7 +14,6 @@ void linear_search(int *where, int len, int what){
 }
 
 int binary_search(int left, int right, int *where, int what){
-//for ascending sorted arrays
     if (left > right) {
         return -1;
     }
@@ -35,12 +34,12 @@ int interpolation_search(int low, int high, int *where, int what) {
     }
     int mid = low + ((what - where[low]) * (high - low) / (where[high] - where[low]));
     if (where[mid] == what) {
-        return mid;
+        return mid + 1;
     }
     if (where[mid] > what) {
-        return cautare_interpolare(mid - 1, high,  where, what);
+        return interpolation_search(mid - 1, high,  where, what);
     }else {
-        return cautare_interpolare(low, mid + 1,  where, what);
+        return interpolation_search(low, mid + 1,  where, what);
     }
 }
 
