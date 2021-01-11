@@ -18,7 +18,7 @@ int binary_search(int left, int right, int *where, int what){
     if (left > right) {
         return -1;
     }
-    int mid = (right - left) / 2 + left;
+    int mid = (right - left) >> 1 + left;
     if (where[mid] == what) {
         return mid;
     }
@@ -29,11 +29,28 @@ int binary_search(int left, int right, int *where, int what){
     }    
 }
 
+int interpolation_search(int low, int high, int *where, int what) {
+    if (low > high) {
+        return -1;
+    }
+    int mid = low + ((what - where[low]) * (high - low) / (where[high] - where[low]));
+    if (where[mid] == what) {
+        return mid;
+    }
+    if (where[mid] > what) {
+        return cautare_interpolare(mid - 1, high, count);
+    }else {
+        return cautare_interpolare(low, mid + 1, count);
+    }
+}
+
 int main() {
   int v[5] = {0, 1, 2, 3, 4};
   linear_search(v, 5, 4);
   printf("\n");
   printf("%d\n", binary_search(0, 4, v, 4));
+  printf("%d\n", interpolation_search(0, 4, v, 4));
+  
   
   return 0;
 }
