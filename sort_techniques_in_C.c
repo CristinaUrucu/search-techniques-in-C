@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 void swap(int *a, int *b){
-    Student c;
+    int c;
     c = *a;
     *a = *b;
     *b = c;
@@ -62,15 +62,86 @@ void bubble_sort(int *what, int n) {
    }
 }
 
+void subtree(int *what, int n, int i) {
+    int largest = i;
+    int left = 2 * i + 1;
+    int right = 2 * i + 2;
+    if (left < n && what[left] > what[largest]) {
+        largest = left;
+    }
+    if (right < n && what[right] > what[largest]) {
+        largest = right;
+    }
+    if (largest != i) {
+        swap(&what[i], &what[largest]);
+        subtree(what, n, largest);
+    }
+}
 
 
+void heap_sort(int *what, int n) {
+    int i;
+    for (i = n / 2 - 1; i >= 0; --i) {
+        subtree(what, n, i);
+    }
+    for (i = n - 1; i > 0; i--) {
+        swap(&what[0], &what[i]);
+        subtree(what, i, 0);
+    }
+}
+
+int partition (int *what,int low, int high) {
+    int pivot = what[high];
+    int j, i;
+    i = (low - 1);
+    for (j = low; j < high; ++j) {
+        if (what[j] < pivot) {
+            i++;
+            swap(&what[i], &what[j]);
+        }
+    }
+    swap(&what[i + 1], &what[high]);
+    return (i + 1);
+}
+
+void quick_sort(int *what,int low,int high) {
+    int partition_index;
+    if (low < high) {
+        partition_index = partition(what, low, high);
+        quick_sort(what, low, partition_index - 1);  // Before partition_index
+        quick_sort(what, partition_index + 1, high); // After partition_index
+    }
+}
+
+void shell_sort(int *what, int n) {
+    int i, j, value, interval = 0;
+    while (interval < n / 3) {
+        interval = interval * 3 + 1;
+    }
+    while(interval > 0){
+        for (i = interval; i < n; ++i) {
+            value = what[i];
+            j = i;
+            while((j > interval - 1) && what[j - interval] > value){
+                what[j] = what[j - interval];
+                j = j - interval;
+            }
+            what[j] = value;
+        }
+        interval = (interval - 1) / 3;
+    }
+}
 
 int main() {
-int v[] = {5, 12, 3, 0, 22, 17};
-shaker_sort(v, 6);
-insertion_sort(v, 6);
-selection_sort(v, 6);
-bubble_sort(v, 6);
+    int v[] = {5, 12, 3, 0, 22, 17};
+    int n = sizeof(v) / sizeof(v[0]);
+    shaker_sort(v, n);
+    insertion_sort(v, n);
+    selection_sort(v, n);
+    bubble_sort(v, n);
+    heap_sort(v, n);
+    quick_sort(v, 0, n - 1);
+    shell_sort(v, n);
 
-return 0;
+    return 0;
 }
