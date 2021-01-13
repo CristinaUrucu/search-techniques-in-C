@@ -132,6 +132,42 @@ void shell_sort(int *what, int n) {
     }
 }
 
+int get_max(int *where, int n) {
+    int i, mx = where[0];
+    for (i = 1; i < n; ++i) {
+        if (where[i] > mx) {
+            mx = where[i];
+        }
+    }
+    return mx;
+}
+
+void counter(int *where, int n, int exp) {
+    int output[n];
+    int i, count[10] = { 0 };
+    for (i = 0; i < n; ++i) {
+        count[(where[i] / exp) % 10]++;
+    }
+    for (i = 1; i < 10; ++i) {
+        count[i] += count[i - 1];
+    }
+    for (i = n - 1; i >= 0; --i) {
+        output[count[(where[i] / exp) % 10] - 1] = where[i];
+        count[(where[i] / exp) % 10]--;
+    }
+    for (i = 0; i < n; i++) {
+        where[i] = output[i];
+    }
+}
+
+void radix_sort(int *where, int n) {
+    int exp, m = get_max(where, n);
+    for (exp = 1; m / exp > 0; exp *= 10) {
+        counter(where, n, exp);
+    }
+}
+
+
 int main() {
     int v[] = {5, 12, 3, 0, 22, 17};
     int n = sizeof(v) / sizeof(v[0]);
@@ -142,6 +178,7 @@ int main() {
     heap_sort(v, n);
     quick_sort(v, 0, n - 1);
     shell_sort(v, n);
+    radix_sort(v, n);
 
     return 0;
 }
