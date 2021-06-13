@@ -613,6 +613,111 @@ void afnrpag(Pagina *pag) {
     printf("%d", nr);
 }
 
+///////////////////////////////////////////////////////////////
+////////////////////Arbori de Regasire/////////////////////////
+///////////////////////////////////////////////////////////////
+
+//citire, inserare, inaltime, numarul de pagini din arbore/////
+//(incluzand radacina), cel mai mare cuvant in ordine//////////
+//lexicografica///////////////////////////////////////////////
+
+int i, N, nr;
+char cuvant[25], cel_mai_lung_cuvant[25];
+
+typedef struct NodArboreDeRegasire {
+	struct NodArboreDeRegasire *alfabet[27]; //alfabetul a b ... z {
+}NodArboreDeRegasire;
+
+NodArboreDeRegasire *arb;
+
+void Initializare(NodArboreDeRegasire *Nod) {
+	//ATENTIE, aceasta functie trebuie apelata cu *Nod deja alocat
+	char c;
+	for (c = 'a'; c <= '{'; c++)
+		Nod->alfabet[c - 'a'] = NULL;
+}
+
+void Atribuie(NodArboreDeRegasire *Nod, char c, NodArboreDeRegasire *p) {
+	Nod->alfabet[c - 'a'] = p;
+}
+
+NodArboreDeRegasire *Valoare(NodArboreDeRegasire *Nod, char c) {
+	return Nod->alfabet[c - 'a'];
+}
+
+void NodNou(NodArboreDeRegasire *Nod, char c) {
+	Nod->alfabet[c - 'a'] = (NodArboreDeRegasire *)malloc(sizeof(struct NodArboreDeRegasire));
+	Initializare(Nod->alfabet[c - 'a']);
+}
+
+void Adauga(char *x, NodArboreDeRegasire *cuvinte) {
+//x=cuvantul, cuvinte=radacina arborelui de regasire
+
+	unsigned i;
+
+	NodArboreDeRegasire *t;
+
+	t = cuvinte;
+
+	for (i = 0; i < strlen(x);i++)
+	{
+
+		if (Valoare(t, x[i]) == NULL) //nodul curent nu are fiu pentru caracterul x[i], deci se creaza unul nou
+
+			NodNou(t, x[i]);
+
+		t = Valoare(t, x[i]); //avansez in arborele de regasire
+
+	}
+	Atribuie(t, '{', t); //se face o bucla pentru '[', pentru a marca un nod terminal
+
+}
+
+void Lung_Cuvant(NodArboreDeRegasire *Nod, char cuv[], int niv) {
+//nodul curent, un buffer pentru construirea cuvantului, nivelul curent
+
+	char c;
+	for (c = 'a'; c <= 'z'; c++)		//pentru toate literele considerate
+	{
+		if (Valoare(Nod, c))			//daca exista legatura in dictionar
+		{
+			cuv[niv] = c;				//adaug litera gasita in buffer
+			nr++;
+			Lung_Cuvant(Valoare(Nod, c),cuv,niv+1); //avansez
+		}
+	}
+	if (Valoare(Nod, '{'))			//exista terminator=>am gasit un cuvant intreg
+	{
+		cuv[niv] = '\0';
+		//printf("%s\n", cuv);		//prelucrez datele
+		if (strlen(cuv) > strlen(cel_mai_lung_cuvant)) {
+            strcpy(cel_mai_lung_cuvant, cuv);
+		}
+	}
+}
+
+void Mare_Cuvant(NodArboreDeRegasire *Nod, char cuv[], int niv) {
+//nodul curent, un buffer pentru construirea cuvantului, nivelul curent
+
+	char c;
+	for (c = 'a'; c <= 'z'; c++)		//pentru toate literele considerate
+	{
+		if (Valoare(Nod, c))			//daca exista legatura in dictionar
+		{
+			cuv[niv] = c;				//adaug litera gasita in buffer
+			Mare_Cuvant(Valoare(Nod, c),cuv,niv+1); //avansez
+		}
+	}
+	if (Valoare(Nod, '{'))			//exista terminator=>am gasit un cuvant intreg
+	{
+		cuv[niv] = '\0';
+		//printf("%s\n", cuv);		//prelucrez datele
+		if (strcmp(cel_mai_mare_cuvant, cuv) < 0) {
+            strcpy(cel_mai_mare_cuvant, cuv);
+		}
+	}
+}
+
 
 
 int main() {
@@ -711,6 +816,32 @@ int main() {
         printf(" ");
         afnrpag(radacina);
 
+        ///////////////////////////////////////////////////////////////
+        ////////////////////Arbori de Regasire/////////////////////////
+        ///////////////////////////////////////////////////////////////
+
+        arb = (NodArboreDeRegasire*) malloc(sizeof(NodArboreDeRegasire));
+        if (arb == NULL) {
+            printf("eroare de alocare");
+            exit(1);
+        }
+        Initializare(arb);
+        scanf("%d", &N);
+        for (i = 0; i < N; ++i) {
+            scanf("%s", &cuvant);
+            Adauga(cuvant, arb);
+        }
+        char *cuv;
+        cuv = (char*) malloc(25*sizeof(char));
+        strcpy(cel_mai_lung_cuvant, "\0");
+        nr = 1;
+        Lung_Cuvant(arb, cuv, 0);
+        int inaltime = strlen(cel_mai_lung_cuvant) + 1;
+        printf("%d %d", inaltime, nr);
+        char *cuv;
+        cuv = (char*)malloc(25*sizeof(char));
+        Mare_Cuvant(arb,cuv, 0);
+        printf("%s", cel_mai_mare_cuvant);
 
 
     return 0;
