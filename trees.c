@@ -59,6 +59,82 @@ void grad(int nod, int gr){
     }
 }
 
+///////////////////////////////////////////////////////////////
+///////////////////////Binary Trees////////////////////////////
+///////////////////////////////////////////////////////////////
+
+/////cu pointeri - adauga, inaltime, preordine, in, post///////
+
+int n, i, cheie;
+
+typedef struct ab{
+    int cheie;
+    struct ab *st;
+    struct ab *dr;
+}AB;
+
+AB *arb;
+
+AB* add (AB* r, int x) {
+    if (r == NULL) {
+        AB *aux = (AB*) malloc(sizeof(AB));
+        if (aux == NULL) {
+            printf("eroare de alocare!!\n");
+        }
+        aux->st = NULL;
+        aux->dr = NULL;
+        aux->cheie = x;
+        return aux;
+    }
+    if (r->cheie < x) {
+        r->dr = add(r->dr, x);
+    } else {
+        r->st = add(r->st, x);
+    }
+    return r;
+}
+
+int maxim(int a, int b) {
+    return (a > b ? a : b);
+}
+
+int inaltime(AB* r, int h) {
+    if (r->st == NULL) {
+        if (r->dr == NULL) {
+            return h;
+        }
+        return maxim(h, inaltime(r->dr, h + 1));
+    }
+    if (r->dr == NULL) {
+        return maxim(h, inaltime(r->st, h + 1));
+    }
+    return maxim(inaltime(r->st, h + 1), inaltime(r->dr, h + 1));
+}
+
+void preordine(AB* r) { //radacina, stanga, dreapta
+    if (r != NULL) {
+        printf("%d ", r->cheie);
+        preordine(r->st);
+        preordine(r->dr);
+    }
+}
+
+void inordine(AB* r) { // stanga, radacina, dredapta
+    if (r != NULL) {
+        inordine(r->st);
+        printf("%d ", r->cheie);
+        inordine(r->dr);
+    }
+}
+
+void postordine(AB* r) { // stanga, dredapta, radacina
+    if (r != NULL) {
+        postordine(r->st);
+        postordine(r->dr);
+        printf("%d ", r->cheie);
+    }
+}
+
 
 int main() {
     ///////////////////////////////////////////////////////////////
@@ -102,6 +178,21 @@ int main() {
 
         free(PF);
         free(FD);
+
+        ///////////////////////////////////////////////////////////////
+        ///////////////////////Binary Trees////////////////////////////
+        ///////////////////////////////////////////////////////////////
+
+        scanf("%d", &n);
+        for (i = 0; i < n; ++i) {
+            scanf("%d", &cheie);
+            arb = add(arb, cheie);
+        }
+        printf("%d\n", inaltime(arb, 1));
+        preordine(arb);
+
+
+        free(arb);
 
 
 
