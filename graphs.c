@@ -128,7 +128,7 @@ int componenteConexe() {
 //////////////Grafuri ponderate/////////////////////////
 ////////////////////////////////////////////////////////
 
-//citire, inserare, algoritmul lui Prim sau Kruska,
+//citire, inserare, algoritmul lui PRIM,
 //sa calculeze arborele de acoperire minim si sa afiseze
 //suma ponderilor arcelor acestuia
 
@@ -160,6 +160,221 @@ int prim() {
     return suma;
 }
 
+//KRUSKA
+
+typedef struct
+{
+    int x, y, c;
+}muchie;
+muchie a[257], aux;
+
+int n, v[257], m, s = 0;
+
+// functie pentru a afisa o eroare in cazul in care n sau m nu respecta intervalele impuse
+void eroare(int minim, int maxim, char c)
+{
+    printf("Numarul %c nu este in intervalul [%d, %d]. Dati alt numar %c: ", c, minim, maxim, c);
+}
+
+// citirea datelor
+void citire()
+{
+    int x, y, c, i;
+    scanf("%d %d", &n, &m);
+    while ((n < 1) || (n > 256))
+    {
+        eroare(1, 256, 'n');
+        scanf("%d", &n);
+    }
+
+    while ((m < 0) || (m > 256))
+    {
+        eroare(0, 256, 'm');
+        scanf("%d", &m);
+    }
+
+    for (i = 1; i <= m; i++)
+    {
+        scanf("%d %d %d", &x, &y, &c);
+        while (((x < 0) || (x > n)) || ((y < 0) || (y > n)) || ((c < -1024) || (c > 1024)))
+        {
+            printf("Cel putin unul dintre numere nu respecta intervalele impuse. Dati alta tripleta de numere: ");
+            scanf("%d %d %d", &x, &y, &c);
+        }
+        a[i].x = x;
+        a[i].y = y;
+        a[i].c = c;
+    }
+}
+
+// sortarea muchiilor in functie de cost
+void sorteaza()
+{
+    int i, ok;
+    do
+    {
+        ok = 1;
+        for (i = 1; i < m; i++)
+            if (a[i].c > a[i + 1].c)
+            {
+                aux = a[i];
+                a[i] = a[i + 1];
+                a[i + 1] = aux;
+                ok = 0;
+            }
+    }while (ok == 0);
+}
+
+// consider ca fiecare nod este initial o componenta conexa
+void initializare()
+{
+    int i;
+    for (i = 1; i <= n; i++)
+        v[i] = i;
+}
+
+// functia imbina toate nodurile intre care exista muchii intr-o singura componenta conexa (sau mai multe daca nu exista muchie)
+void inlocuieste(int x, int y)
+{
+    int i;
+    for (i = 1; i <= n; i++)
+        if (v[i] == x)
+            v[i] = y;
+
+}
+
+void kruskal()
+{
+    int i = 1, k = 0;
+    while (k < n - 1)
+    {
+        if (v[a[i].x] != v[a[i].y]) // daca inca fac parte din componente conexe diferite
+        {
+            s += a[i].c; // costul minim
+            inlocuieste(v[a[i].x], v[a[i].y]);
+            k++;
+        }
+        i++;
+    }
+}
+
+////////////////////////////////////////////////////////
+//////////////Grafuri orientate/////////////////////////
+////////////////////////////////////////////////////////
+
+//citire, inserare, Dijkstra, programul va calcula si///
+//afisa n-1 valori separate prin spatiu, reprezentand///
+//distanta minima de la primul nod (nodul cu cheia 1)///
+//la toate celalalte noduri(2, 3, ..., n). Atentie,/////
+//este posibil sa nu existe drum de la primul nod la////
+//unele noduri, caz in care se va afisa lungimea 0//////
+
+typedef struct {
+    int nod, cost;
+    struct graf *next;
+} graf;
+
+int n, m, inf = 1 << 30;
+graf *a[270];
+int d[270], h[270], poz[270], k;
+
+void add (int where, int what, int cost) {
+    graf *q = (graf*)malloc(sizeof(graf));
+    if (q == NULL) {
+        printf("Eroare la alocare.");
+        exit(1);
+    }
+    q->nod = what;
+    q->cost = cost;
+    q->next = a[where];
+    a[where] = q;
+}
+
+void read () {
+    scanf("%d %d", &n, &m);
+    int x, y, z;
+    for (int i = 1; i <= m; ++i) {
+        scanf("%d %d %d", &x, &y, &z);
+        add(x, y, z);
+    }
+}
+
+void swap (int x, int y) {
+    int t = h[x];
+    h[x] = h[y];
+    h[y] = t;
+}
+
+void upheap (int what) {
+    int tata;
+    while (what > 1) {
+        tata = what >> 1;
+        if (d[h[tata]] > d[h[what]]) {
+            poz[h[what]] = tata;
+            poz[h[tata]] = what;
+            swap(tata, what);
+            what = tata;
+        }
+        else
+            what = 1;
+    }
+}
+
+void downheap(int what) {
+    int f;
+    while (what <= k) {
+        f = what;
+        if ((what << 1) <= k) {
+            f = what << 1;
+            if (f + 1 <= k) {
+                if (d[h[f + 1]] < d[h[f]]) {
+                    ++f;
+                }
+            }
+        } else {
+            return;
+        }
+        if (d[h[what]] > d[h[f]]) {
+            poz[h[what]] = f;
+            poz[h[f]] = what;
+            swap(what, f);
+            what = f;
+        }
+        else {
+            return;
+        }
+    }
+}
+
+void dijkstra_heap () {
+    for (int i = 2; i <= n; ++i) {
+        d[i] = inf;
+        poz[i] = -1;
+    }
+    poz[1] = 1;
+    h[++k] = 1;
+    while (k) {
+        int min = h[1];
+        swap(1, k);
+        poz[h[1]] = 1;
+        --k;
+        downheap(1);
+        graf *q = a[min];
+        while (q) {
+            if (d[q->nod] > d[min] + q->cost) {
+                d[q->nod] = d[min] + q->cost;
+                if (poz[q->nod] != -1) {
+                    upheap(poz[q->nod]);
+                } else {
+                    h[++k] = q->nod;
+                    poz[h[k]] = k;
+                    upheap(k);
+                }
+            }
+            q = q->next;
+        }
+    }
+}
 
 
 void main() {
@@ -223,6 +438,24 @@ void main() {
     }
 
     printf("%d", prim());
+
+    //Kruskal
+    citire();
+    initializare();
+    sorteaza();
+    kruskal();
+    printf("%d", s);
+
+    ////////////////////////////////////////////////////////
+    //////////////Grafuri orientate/////////////////////////
+    ////////////////////////////////////////////////////////
+
+    read();
+    dijkstra_heap();
+    for (int i = 2; i <= n; ++i) {
+        printf("%d ", d[i] == inf ? 0 : d[i]);
+    }
+    printf("\n");
 
 
     return 0;
